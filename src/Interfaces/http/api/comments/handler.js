@@ -5,26 +5,29 @@ class CommentHandler {
 	constructor(container) {
 		this._container = container;
 
-		this.postCommentHandler = this.postThreadCommentHandler.bind(this);
-		this.deleteCommentHandler = this.deleteThreadCommentHandler.bind(this);
+		this.postThreadCommentHandler = this.postThreadCommentHandler.bind(this);
+		this.deleteThreadCommentHandler = this.deleteThreadCommentHandler.bind(this);
 	}
 
+	// In src/Interfaces/http/api/comments/handler.js
 	async postThreadCommentHandler(request, h) {
 		const { id: userId } = request.auth.credentials;
 		const { threadId } = request.params;
+		
 		const addThreadCommentUseCase = this._container.getInstance(AddThreadCommentUseCase.name);
 		
-		console.log('Request payload:', request.payload);
-		console.log('ThreadId:', threadId);
-		console.log('UserId:', userId);
-		
-		const addedComment = await addThreadCommentUseCase.execute({
+		const payload = {
 			...request.payload,
 			threadId,
 			owner: userId,
-		});
+		};
 		
-		console.log('Added comment result:', addedComment);
+		const addedComment = await addThreadCommentUseCase.execute(payload);
+		
+		if (!addedComment) {
+			console.log('ERROR: addedComment is undefined/null');
+			throw new Error('Use case returned undefined result');
+		}
 		
 		const response = h.response({
 			status: 'success',

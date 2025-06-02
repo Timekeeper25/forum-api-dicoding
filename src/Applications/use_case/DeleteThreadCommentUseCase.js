@@ -12,7 +12,7 @@ class DeleteThreadCommentUseCase {
 		await this._threadRepository.verifyThreadExists(threadId);
 		await this._commentRepository.verifyCommentExists(commentId);
 		await this._commentRepository.verifyCommentOwner(commentId, ownerId);
-		await this._commentRepository.deleteThreadComment(threadId, commentId);
+		await this._commentRepository.deleteThreadComment(commentId);
 	}
 }
 

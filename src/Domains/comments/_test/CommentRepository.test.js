@@ -9,10 +9,10 @@ describe('CommentRepository interface', () => {
     await expect(commentRepository.addThreadComment('', '', '')).rejects.toThrowError(
       'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
-    await expect(commentRepository.getCommentByThreadId('')).rejects.toThrowError(
+    await expect(commentRepository.getCommentsByThreadId('')).rejects.toThrowError(
       'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
-    await expect(commentRepository.verifyCommentExist('')).rejects.toThrowError(
+    await expect(commentRepository.verifyCommentExists('')).rejects.toThrowError(
       'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
     await expect(commentRepository.verifyCommentOwner('')).rejects.toThrowError(
