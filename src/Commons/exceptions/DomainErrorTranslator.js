@@ -21,6 +21,8 @@ DomainErrorTranslator._directories = {
   'ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat thread karena properti yang dibutuhkan tidak ada'),
   'ADDED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat mengembalikan thread karena properti yang dibutuhkan tidak ada'),
   'THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED': new InvariantError('metode repository belum diimplementasikan'),
+  'NEW_THREAD.PROPERTY_HAVE_WRONG_DATA_TYPE': new InvariantError('tipe data yang diinput tidak sesuai'),
+  'NEW_THREAD.TITLE_EXCEED_CHAR_LIMIT': new InvariantError('string judul melebihi limit yang ditetapkan'),
   'THREAD_REPOSITORY.NOT_FOUND': new NotFoundError('thread tidak ditemukan'),
 };
 

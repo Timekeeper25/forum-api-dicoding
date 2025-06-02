@@ -15,6 +15,12 @@ class AddedThread {
 		if (!id || !title || !owner ) {
 			throw new InvariantError('ADDED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
 		}
+		    if (typeof title !== 'string' || typeof body !== 'string') {
+			throw new InvariantError('NEW_THREAD.PROPERTY_HAVE_WRONG_DATA_TYPE');
+		}
+			if (title.length > 50) {
+			throw new InvariantError('NEW_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+		}
 	}
 }
 

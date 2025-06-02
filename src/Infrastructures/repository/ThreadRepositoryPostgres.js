@@ -23,32 +23,18 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 	}
 
 	async addThread({ addThread, owner }) {
-		try {
-			console.log('Repository addThread called with:', { addThread, owner });
-			
-			const { title, body } = addThread;
-			console.log('Extracted from addThread:', { title, body });
-			
-			const id = `thread-${this._idGenerator()}`;
-			const date = new Date();
-			
-			console.log('Generated values:', { id, date });
+		const { title, body } = addThread;
+		const id = `thread-${this._idGenerator()}`;
+		const date = new Date();
 
-			const query = {
-				text: 'INSERT INTO threads (id, title, body, owner, date) VALUES($1, $2, $3, $4, $5) RETURNING id, title, owner',
-				values: [id, title, body, owner, date],
-			};
+		const query = {
+			text: 'INSERT INTO threads (id, title, body, owner, date) VALUES($1, $2, $3, $4, $5) RETURNING id, title, owner',
+			values: [id, title, body, owner, date],
+		};
 
-			console.log('Query:', query);
+		const result = await this._pool.query(query);
 
-			const result = await this._pool.query(query);
-			console.log('DB result:', result.rows[0]);
-
-			return new AddedThread({ id: result.rows[0].id, title: result.rows[0].title, owner: result.rows[0].owner });
-		} catch (error) {
-			console.error('Error in ThreadRepositoryPostgres:', error);
-			throw error;
-		}
+		return new AddedThread({ id: result.rows[0].id, title: result.rows[0].title, owner: result.rows[0].owner });
 	}
 
 	async getThreadById(id) {

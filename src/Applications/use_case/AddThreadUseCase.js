@@ -6,23 +6,9 @@ class AddThreadUseCase {
 	}
 
 	async execute(useCasePayload) {
-		try {
-			console.log('AddThreadUseCase payload:', useCasePayload);
-			
-			const newThread = new AddThread(useCasePayload);
-			console.log('AddThread created:', newThread);
-			
-			const { owner } = useCasePayload;
-			console.log('Owner extracted:', owner);
-			
-			const result = await this._threadRepository.addThread({ addThread: newThread, owner });
-			console.log('Repository result:', result);
-			
-			return result;
-		} catch (error) {
-			console.error('Error in AddThreadUseCase:', error);
-			throw error;
-		}
+		const newThread = new AddThread(useCasePayload);
+		const { owner } = useCasePayload;
+		return await this._threadRepository.addThread({ addThread: newThread, owner });
 	}
 }
 

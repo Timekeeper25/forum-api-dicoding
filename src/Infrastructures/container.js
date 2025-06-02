@@ -229,7 +229,7 @@ container.register([
   },
   {
     key: DeleteThreadCommentUseCase.name,
-    Class: DeleteThreadCommentUseCase.name,
+    Class: DeleteThreadCommentUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
