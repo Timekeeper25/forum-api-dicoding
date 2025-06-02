@@ -13,7 +13,11 @@ class AddThreadComment {
 
 	_verifyPayload({ content, threadId, owner }) {
 		if (!content || !threadId || !owner) {
-			throw new InvariantError('AFF_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+			throw new InvariantError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+		}
+
+		if (typeof content !== 'string') {
+			throw new InvariantError('NEW_COMMENT.PROPERTY_HAVE_WRONG_DATA_TYPE');
 		}
 	}
 }
