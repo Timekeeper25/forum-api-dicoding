@@ -57,13 +57,25 @@ const createServer = async (container) => {
     }
   ]);
 
+// Add this to your createServer.js in the onPreResponse extension:
+
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request
     const { response } = request;
 
     if (response instanceof Error) {
+      // LOG THE ORIGINAL ERROR FIRST
+      console.error('=== ORIGINAL ERROR ===');
+      console.error('Error message:', response.message);
+      console.error('Error stack:', response.stack);
+      console.error('Error details:', response);
+      
       // bila response tersebut error, tangani sesuai kebutuhan
       const translatedError = DomainErrorTranslator.translate(response);
+      
+      console.error('=== TRANSLATED ERROR ===');
+      console.error('Translated error:', translatedError);
+      console.error('Is ClientError:', translatedError instanceof ClientError);
 
       // penanganan client error secara internal.
       if (translatedError instanceof ClientError) {
@@ -77,10 +89,13 @@ const createServer = async (container) => {
 
       // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
       if (!translatedError.isServer) {
+        console.log('Continuing with Hapi native error handling');
         return h.continue;
       }
 
       // penanganan server error sesuai kebutuhan
+      console.error('=== SERVER ERROR ===');
+      console.error('Sending 500 response');
       const newResponse = h.response({
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
