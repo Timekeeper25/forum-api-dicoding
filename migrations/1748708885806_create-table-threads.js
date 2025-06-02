@@ -3,7 +3,7 @@
 exports.up = pgm => {
 	pgm.createTable('threads', {
 	  id: {
-		type: 'SERIAL',
+		type: 'VARCHAR(50)',
 		primaryKey: true
 	  },
 	  title: {
@@ -17,6 +17,11 @@ exports.up = pgm => {
 	  owner: {
 		type: 'VARCHAR(50)',
 		notNull: true
+	  },
+	  date: {
+		type: 'TIMESTAMP',
+		notNull: true,
+		default: pgm.func('current_timestamp')
 	  }
 	});
   };

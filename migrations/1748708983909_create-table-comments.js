@@ -3,15 +3,15 @@
 exports.up = pgm => {
 	pgm.createTable('comments', {
 	  id: {
-		type: 'SERIAL',
+		type: 'VARCHAR(50)',
 		primaryKey: true
 	  },
 	  content: {
 		type: 'TEXT',
 		notNull: true
 	  },
-	  threadId: {
-		type: 'INTEGER',
+	  thread_id: {
+		type: 'VARCHAR(50)',
 		notNull: true,
 		references: '"threads"',
 		onDelete: 'CASCADE'
@@ -19,6 +19,16 @@ exports.up = pgm => {
 	  owner: {
 		type: 'VARCHAR(50)',
 		notNull: true
+	  },
+	  date: { 
+		type: 'TIMESTAMP',
+		notNull: true,
+		default: pgm.func('current_timestamp')
+	  },
+	  is_delete: { 
+		type: 'BOOLEAN',
+		notNull: true,
+		default: false
 	  }
 	});
   };

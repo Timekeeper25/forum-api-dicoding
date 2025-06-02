@@ -1,5 +1,6 @@
 const InvariantError = require('../../Commons/exceptions/InvariantError');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
+const AddedThread = require('../../Domains/threads/entities/AddedThread');
 
 class ThreadRepositoryPostgres extends ThreadRepository {
 	constructor(pool, idGenerator) {
@@ -21,8 +22,8 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 		}
 	}
 
-	async addThread({ thread, owner }) {
-		const { title, body } = thread;
+	async addThread({ addThread, owner }) {
+		const { title, body } = addThread;
 		const id = `thread-${this._idGenerator()}`;
 		const date = new Date();
 
@@ -32,13 +33,13 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 		};
 
 		const result = await this._pool.query(query);
-		
-		return new AddedThread({ id: result.rows[0].id, title: result.rows[0].title, owner: result.rows[0].user_id });
+
+		return new AddedThread({ id: result.rows[0].id, title: result.rows[0].title, owner: result.rows[0].owner });
 	}
 
 	async getThreadById(id) {
 		const query = {
-			text : 'SELECT threads.id, threads.title, threads.body, threads.date, users.username FROM threads LEFT_JOIN users ON threads.owner = username WHERE threads.id = $1',
+			text : 'SELECT threads.id, threads.title, threads.body, threads.date, users.username FROM threads LEFT JOIN users ON threads.owner = username WHERE threads.id = $1',
 			values: [id],
 		};
 		const result = await this._pool.query(query);
