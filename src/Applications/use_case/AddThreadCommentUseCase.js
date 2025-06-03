@@ -12,10 +12,7 @@ class AddThreadCommentUseCase {
 		console.log('UseCase payload:', useCasePayload);
 		const { threadId } = useCasePayload;
 
-		const thread = await this._threadRepository.verifyThreadExists(threadId);
-		if (!thread) {
-			throw new NotFoundError('Thread not found');
-		}
+		await this._threadRepository.verifyThreadExists(threadId);
 
 		const newComment = new AddThreadComments(useCasePayload);
 		console.log('New comment entity:', newComment);
