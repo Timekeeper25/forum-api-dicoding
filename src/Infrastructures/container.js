@@ -208,8 +208,16 @@ container.register([
       injectType: 'destructuring',
       dependencies: [
         {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
+          name: 'userRepository',
+          internal: UserRepositoryPostgres.name,
+        },
+        {
+          name: 'threadRepository', 
+          internal: ThreadRepositoryPostgres.name,
+        },
+        {
+          name: 'commentRepository',
+          internal: CommentRepositoryPostgres.name,
         },
       ],
     },
