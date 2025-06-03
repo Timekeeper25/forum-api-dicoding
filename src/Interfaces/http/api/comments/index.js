@@ -5,10 +5,7 @@ const routes = require('./routes');
 module.exports = {
     name: 'comments',
     register: async (server, { container }) => {
-        console.log('Registering comments plugin...');
         const commentsHandler = new CommentsHandlers(container);
-        console.log('Comments handler created:', commentsHandler);
         server.route(routes(commentsHandler));
-        console.log('Comments routes registered');
     }
 }

@@ -209,15 +209,15 @@ container.register([
       dependencies: [
         {
           name: 'userRepository',
-          internal: UserRepositoryPostgres.name,
+          internal: UserRepository.name,
         },
         {
           name: 'threadRepository', 
-          internal: ThreadRepositoryPostgres.name,
+          internal: ThreadRepository.name,
         },
         {
           name: 'commentRepository',
-          internal: CommentRepositoryPostgres.name,
+          internal: CommentRepository.name,
         },
       ],
     },
