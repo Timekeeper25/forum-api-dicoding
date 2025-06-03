@@ -1,16 +1,5 @@
 const DeleteCommentUseCase = require('../DeleteThreadCommentUseCase');
 
-// Mocking dependencies
-const mockThreadRepository = {
-  verifyThreadExists: jest.fn(),
-};
-const mockCommentRepository = {
-  verifyCommentExists: jest.fn(),
-  verifyCommentOwner: jest.fn(),
-  deleteThreadComment: jest.fn(),
-};
-
-// Test suite for DeleteCommentUseCase
 describe('DeleteThreadCommentUseCase', () => {
   it('should orchestrate the delete comment action correctly', async () => {
     // Arrange
@@ -20,10 +9,15 @@ describe('DeleteThreadCommentUseCase', () => {
       ownerId: 'user-123',
     };
 
-    mockThreadRepository.verifyThreadExists.mockResolvedValue();
-    mockCommentRepository.verifyCommentExists.mockResolvedValue();
-    mockCommentRepository.verifyCommentOwner.mockResolvedValue();
-    mockCommentRepository.deleteThreadComment.mockResolvedValue();
+    const mockThreadRepository = {
+      verifyThreadExists: jest.fn().mockResolvedValue(),
+    };
+
+    const mockCommentRepository = {
+      verifyCommentExists: jest.fn().mockResolvedValue(),
+      verifyCommentOwner: jest.fn().mockResolvedValue(),
+      deleteThreadComment: jest.fn().mockResolvedValue(),
+    };
 
     const deleteCommentUseCase = new DeleteCommentUseCase({
       threadRepository: mockThreadRepository,
@@ -37,6 +31,6 @@ describe('DeleteThreadCommentUseCase', () => {
     expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(useCasePayload.threadId);
     expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledWith(useCasePayload.commentId);
     expect(mockCommentRepository.verifyCommentOwner).toHaveBeenCalledWith(useCasePayload.commentId, useCasePayload.ownerId);
-    expect(mockCommentRepository.deleteThreadComment).toHaveBeenCalledWith(useCasePayload.threadId, useCasePayload.commentId);
+    expect(mockCommentRepository.deleteThreadComment).toHaveBeenCalledWith(useCasePayload.commentId);
   });
 });

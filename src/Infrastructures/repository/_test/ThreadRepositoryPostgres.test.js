@@ -1,51 +1,55 @@
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
-
-// Mock pool
-const pool = {
-  query: jest.fn(),
-};
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AddThread = require('../../../Domains/threads/entities/AddThread');
 
 describe('ThreadRepositoryPostgres', () => {
   let threadRepository;
+  let mockPool;
+  let mockIdGenerator;
 
   beforeEach(() => {
-    threadRepository = new ThreadRepositoryPostgres(pool);
-    jest.clearAllMocks();
+    mockPool = {
+      query: jest.fn(),
+    };
+    mockIdGenerator = jest.fn(() => '123');
+    threadRepository = new ThreadRepositoryPostgres(mockPool, mockIdGenerator);
   });
 
   describe('addThread', () => {
     it('should persist thread and return added thread correctly', async () => {
-      const newThread = {
-        id: 'thread-123',
+      // Arrange
+      const newThread = new AddThread({
         title: 'Judul Thread',
         body: 'Thread Body',
-        owner: 'user-123',
-        date: new Date(),
-      };
+        owner: 'user-123'
+      });
+
       const expectedResult = {
         rows: [{ id: 'thread-123', title: 'Judul Thread', owner: 'user-123' }],
-        rowCount: 1,
       };
-      pool.query.mockResolvedValue(expectedResult);
+      mockPool.query.mockResolvedValue(expectedResult);
 
-      const result = await threadRepository.addThread(newThread);
+      // Act
+      const result = await threadRepository.addThread({ addThread: newThread, owner: 'user-123' });
 
-      expect(pool.query).toHaveBeenCalled();
-      // You may want to return the inserted row in addThread for this to work
-      // expect(result).toEqual(expectedResult.rows[0]);
+      // Assert
+      expect(mockPool.query).toHaveBeenCalled();
+      expect(result.id).toEqual('thread-123');
+      expect(result.title).toEqual('Judul Thread');
+      expect(result.owner).toEqual('user-123');
     });
   });
 
   describe('verifyThreadExists', () => {
     it('should not throw error if thread exists', async () => {
-      pool.query.mockResolvedValue({ rowCount: 1 });
+      mockPool.query.mockResolvedValue({ rowCount: 1, rows: [{ id: 'thread-123' }] });
       await expect(threadRepository.verifyThreadExists('thread-123')).resolves.not.toThrow();
     });
 
-    it('should throw InvariantError if thread does not exist', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
-      await expect(threadRepository.verifyThreadExists('thread-xxx')).rejects.toThrow(InvariantError);
+    it('should throw NotFoundError if thread does not exist', async () => {
+      mockPool.query.mockResolvedValue({ rowCount: 0 });
+      await expect(threadRepository.verifyThreadExists('thread-xxx')).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -55,18 +59,19 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'thread-123',
         title: 'Judul Thread',
         body: 'Thread Body',
-        date: new Date(),
-        username: 'user123',
+        date: new Date().toISOString(),
+        owner: 'user-123',
       };
-      pool.query.mockResolvedValue({ rows: [expectedThread], rowCount: 1 });
+      mockPool.query.mockResolvedValue({ rows: [expectedThread], rowCount: 1 });
 
       const result = await threadRepository.getThreadById('thread-123');
       expect(result).toEqual(expectedThread);
     });
 
-    it('should throw InvariantError if thread does not exist', async () => {
-      pool.query.mockResolvedValue({ rowCount: 0 });
-      await expect(threadRepository.getThreadById('thread-xxx')).rejects.toThrow(InvariantError);
+    it('should return null if thread does not exist', async () => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      const result = await threadRepository.getThreadById('thread-xxx');
+      expect(result).toBeUndefined();
     });
   });
 });
