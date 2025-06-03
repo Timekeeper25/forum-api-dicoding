@@ -4,22 +4,22 @@ describe('AddThreadComment entity', () => {
 	it('should throw error when payload does not contain needed property', () => {
 		// missing threadId
 		const payload = { content: 'komentar', owner: 'user-123' };
-		expect(() => new AddThreadComment(payload)).toThrowError('AFF_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
 	});
 
 	it('should throw error when content is missing', () => {
 		const payload = { threadId: 'thread-123', owner: 'user-123' };
-		expect(() => new AddThreadComment(payload)).toThrowError('AFF_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
 	});
 
 	it('should throw error when threadId is missing', () => {
 		const payload = { content: 'komentar', owner: 'user-123' };
-		expect(() => new AddThreadComment(payload)).toThrowError('AFF_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
 	});
 
 	it('should throw error when owner is missing', () => {
 		const payload = { content: 'komentar', threadId: 'thread-123' };
-		expect(() => new AddThreadComment(payload)).toThrowError('AFF_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
 	});
 
 	it('should create AddThreadComment object correctly when given valid payload', () => {
