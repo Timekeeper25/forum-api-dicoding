@@ -82,9 +82,9 @@ describe('GetThreadsUseCase', () => {
 
     // Mock user data for thread owner and comment owners
     mockUserRepository.getUserById = jest.fn()
-      .mockResolvedValueOnce({ username: 'threadOwner' })  // for thread owner
-      .mockResolvedValueOnce({ username: 'commentOwner1' }) // for first comment owner
-      .mockResolvedValueOnce({ username: 'commentOwner2' }); // for second comment owner
+      .mockResolvedValueOnce({ username: 'threadOwner' })
+      .mockResolvedValueOnce({ username: 'commentOwner1' }) 
+      .mockResolvedValueOnce({ username: 'commentOwner2' }); 
 
     mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
     mockThreadRepository.getThreadById = jest.fn().mockResolvedValue({
@@ -102,6 +102,7 @@ describe('GetThreadsUseCase', () => {
         date: new Date(),
         content: 'First comment',
         owner: 'user-456',
+        is_delete: true,
       },
       {
         id: 'comment-124',
@@ -109,6 +110,7 @@ describe('GetThreadsUseCase', () => {
         date: new Date(),
         content: 'Second comment',
         owner: 'user-789',
+        is_delete: false,
       }
     ];
 
@@ -126,7 +128,7 @@ describe('GetThreadsUseCase', () => {
           id: 'comment-123',
           username: 'commentOwner1',
           date: new Date(),
-          content: 'First comment',
+          content: '**komentar telah dihapus**',
         },
         {
           id: 'comment-124',
