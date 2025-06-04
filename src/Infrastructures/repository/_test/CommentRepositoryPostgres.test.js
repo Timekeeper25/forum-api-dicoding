@@ -6,7 +6,7 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddThreadComment = require('../../../Domains/comments/entities/AddThreadComment');
 const AddedThreadComment = require('../../../Domains/comments/entities/AddedThreadComment');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
-const ThreadsTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 
 describe('CommentRepositoryPostgres', () => {
@@ -96,52 +96,54 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw InvariantError when comment not found', async () => {
       // Act & Assert
       await expect(commentRepository.deleteThreadComment('comment-nonexistent'))
-        .rejects.toThrow(InvariantError);
+        .rejects.toThrow(NotFoundError);
       await expect(commentRepository.deleteThreadComment('comment-nonexistent'))
         .rejects.toThrow('Comment Not Found');
     });
   });
 
   describe('verifyCommentOwner', () => {
-    it('should not throw error if comment is owned by user', async () => {
-      // Arrange - Add user, thread, and comment
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
-      await pool.query({
-        text: 'INSERT INTO comments (id, thread_id, content, date, owner, is_delete) VALUES($1, $2, $3, $4, $5, $6)',
-        values: ['comment-123', 'thread-123', 'Test comment', new Date().toISOString(), 'user-123', false],
-      });
-
-      // Act & Assert - Should not throw any error
-      await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
-        .resolves.not.toThrow();
+  it('should not throw error if comment is owned by user', async () => {
+    // Arrange - Add user, thread, and comment
+    await UsersTableTestHelper.addUser({ id: 'user-123' });
+    await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+    await pool.query({
+      text: 'INSERT INTO comments (id, thread_id, content, date, owner, is_delete) VALUES($1, $2, $3, $4, $5, $6)',
+      values: ['comment-123', 'thread-123', 'Test comment', new Date().toISOString(), 'user-123', false],
     });
 
-    it('should throw InvariantError if comment does not exist', async () => {
-      // Act & Assert
-      await expect(commentRepository.verifyCommentOwner('comment-nonexistent', 'user-123'))
-        .rejects.toThrow(InvariantError);
-      await expect(commentRepository.verifyCommentOwner('comment-nonexistent', 'user-123'))
-        .rejects.toThrow('Komentar tidak ditemukan');
-    });
-
-    it('should throw AuthorizationError if user is not owner', async () => {
-      // Arrange - Add users, thread, and comment owned by user-456
-      await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await UsersTableTestHelper.addUser({ id: 'user-456', username: 'otheruser' });
-      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-456' });
-      await pool.query({
-        text: 'INSERT INTO comments (id, thread_id, content, date, owner, is_delete) VALUES($1, $2, $3, $4, $5, $6)',
-        values: ['comment-123', 'thread-123', 'Test comment', new Date().toISOString(), 'user-456', false],
-      });
-
-      // Act & Assert
-      await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
-        .rejects.toThrow(AuthorizationError);
-      await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
-        .rejects.toThrow('Anda tidak berhak mengakses resource ini');
-    });
+    // Act & Assert - Should not throw any error, specifically not InvariantError or AuthorizationError
+    await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
+      .resolves.not.toThrow(InvariantError);
+    await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
+      .resolves.not.toThrow(AuthorizationError);
   });
+
+  it('should throw InvariantError if comment does not exist', async () => {
+    // Act & Assert
+    await expect(commentRepository.verifyCommentOwner('comment-nonexistent', 'user-123'))
+      .rejects.toThrow(NotFoundError);
+    await expect(commentRepository.verifyCommentOwner('comment-nonexistent', 'user-123'))
+      .rejects.toThrow('Komentar tidak ditemukan');
+  });
+
+  it('should throw AuthorizationError if user is not owner', async () => {
+    // Arrange - Add users, thread, and comment owned by user-456
+    await UsersTableTestHelper.addUser({ id: 'user-123' });
+    await UsersTableTestHelper.addUser({ id: 'user-456', username: 'otheruser' });
+    await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-456' });
+    await pool.query({
+      text: 'INSERT INTO comments (id, thread_id, content, date, owner, is_delete) VALUES($1, $2, $3, $4, $5, $6)',
+      values: ['comment-123', 'thread-123', 'Test comment', new Date().toISOString(), 'user-456', false],
+    });
+
+    // Act & Assert
+    await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
+      .rejects.toThrow(AuthorizationError);
+    await expect(commentRepository.verifyCommentOwner('comment-123', 'user-123'))
+      .rejects.toThrow('Anda tidak berhak mengakses resource ini');
+  });
+});
 
   describe('getCommentsByThreadId', () => {
     it('should return list of comments for a thread ordered by date', async () => {
@@ -168,16 +170,23 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       expect(result).toHaveLength(2);
       
-      // Verify order by date (ascending)
+      // Verify order by date (ascending) and all properties
       expect(result[0].id).toEqual('comment-1');
       expect(result[0].content).toEqual('First comment');
+      expect(result[0].date).toBeDefined();
+      expect(new Date(result[0].date)).toBeInstanceOf(Date);
       expect(result[0].owner).toEqual('user-123');
       expect(result[0].is_delete).toBe(false);
       
       expect(result[1].id).toEqual('comment-2');
       expect(result[1].content).toEqual('Second comment');
+      expect(result[1].date).toBeDefined();
+      expect(new Date(result[1].date)).toBeInstanceOf(Date);
       expect(result[1].owner).toEqual('user-456');
       expect(result[1].is_delete).toBe(true);
+      
+      // Verify ordering by comparing dates
+      expect(new Date(result[0].date).getTime()).toBeLessThan(new Date(result[1].date).getTime());
     });
 
     it('should return empty array if no comments exist for thread', async () => {

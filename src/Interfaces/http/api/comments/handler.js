@@ -9,7 +9,6 @@ class CommentHandler {
 		this.deleteThreadCommentHandler = this.deleteThreadCommentHandler.bind(this);
 	}
 
-	// In src/Interfaces/http/api/comments/handler.js
 	async postThreadCommentHandler(request, h) {
 		const { id: userId } = request.auth.credentials;
 		const { threadId } = request.params;

@@ -38,7 +38,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
 		const result = await this._pool.query(query);
 		if (!result.rowCount) {
-			throw new InvariantError('Comment Not Found')
+			throw new NotFoundError('Comment Not Found')
 		}
 	}
 
@@ -49,7 +49,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 		};
 		const result = await this._pool.query(query);
 		if (!result.rowCount) {
-			throw new InvariantError('Komentar tidak ditemukan');
+			throw new NotFoundError('Komentar tidak ditemukan');
 		}
 		if (result.rows[0].owner !== ownerId) {
 			throw new AuthorizationError('Anda tidak berhak mengakses resource ini');

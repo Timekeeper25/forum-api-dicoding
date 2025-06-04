@@ -122,4 +122,58 @@ describe('UserRepositoryPostgres', () => {
       expect(userId).toEqual('user-321');
     });
   });
+
+  describe('getUserById', () => {
+    it('should throw InvariantError when user not found', async () => {
+      // Arrange
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(userRepositoryPostgres.getUserById('user-999'))
+        .rejects
+        .toThrowError(InvariantError);
+    });
+
+    it('should return user correctly when user is found', async () => {
+      // Arrange
+      const expectedUser = {
+        id: 'user-123',
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia'
+      };
+      
+      await UsersTableTestHelper.addUser(expectedUser);
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+
+      // Action
+      const user = await userRepositoryPostgres.getUserById('user-123');
+
+      // Assert
+      expect(user).toEqual(expectedUser);
+    });
+
+    it('should return complete user data with all fields', async () => {
+      // Arrange
+      const userData = {
+        id: 'user-456',
+        username: 'testuser',
+        password: 'hashed_password',
+        fullname: 'Test User'
+      };
+      
+      await UsersTableTestHelper.addUser(userData);
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+
+      // Action
+      const user = await userRepositoryPostgres.getUserById('user-456');
+
+      // Assert
+      expect(user).toBeDefined();
+      expect(user.id).toBe('user-456');
+      expect(user.username).toBe('testuser');
+      expect(user.password).toBe('hashed_password');
+      expect(user.fullname).toBe('Test User');
+    });
+  })
 });

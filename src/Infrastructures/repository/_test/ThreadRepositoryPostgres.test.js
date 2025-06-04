@@ -4,20 +4,20 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 
 describe('ThreadRepositoryPostgres', () => {
   let threadRepository;
   let mockIdGenerator;
 
   beforeEach(() => {
-    // Using concrete implementation for pool instead of mocking
     mockIdGenerator = jest.fn(() => '123');
     threadRepository = new ThreadRepositoryPostgres(pool, mockIdGenerator);
   });
 
   afterEach(async () => {
     // Clean up test data
-    await pool.query('DELETE FROM threads WHERE 1=1');
+    await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -50,29 +50,27 @@ describe('ThreadRepositoryPostgres', () => {
       // Assert - Verify return type is AddedThread object
       expect(result).toBeInstanceOf(AddedThread);
 
-      // Assert - Verify data exists in database
-      const query = {
-        text: 'SELECT * FROM threads WHERE id = $1',
-        values: ['thread-123'],
-      };
-      const dbResult = await pool.query(query);
+      // Assert - Verify data exists in database using helper
+      const threadsInDb = await ThreadsTableTestHelper.findThreadById('thread-123');
       
-      expect(dbResult.rows).toHaveLength(1);
-      expect(dbResult.rows[0].id).toEqual('thread-123');
-      expect(dbResult.rows[0].title).toEqual('Judul Thread');
-      expect(dbResult.rows[0].body).toEqual('Thread Body');
-      expect(dbResult.rows[0].owner).toEqual('user-123');
-      expect(dbResult.rows[0].date).toBeDefined();
+      expect(threadsInDb).toHaveLength(1);
+      expect(threadsInDb[0].id).toEqual('thread-123');
+      expect(threadsInDb[0].title).toEqual('Judul Thread');
+      expect(threadsInDb[0].body).toEqual('Thread Body');
+      expect(threadsInDb[0].owner).toEqual('user-123');
+      expect(threadsInDb[0].date).toBeDefined();
     });
   });
 
   describe('verifyThreadExists', () => {
     it('should not throw NotFoundError if thread exists', async () => {
-      // Arrange - Add user and thread
+      // Arrange - Add user and thread using helper
       await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await pool.query({
-        text: 'INSERT INTO threads (id, title, body, owner, date) VALUES($1, $2, $3, $4, $5)',
-        values: ['thread-123', 'Test Title', 'Test Body', 'user-123', new Date().toISOString()],
+      await ThreadsTableTestHelper.addThread({ 
+        id: 'thread-123',
+        title: 'Test Title',
+        body: 'Test Body',
+        owner: 'user-123'
       });
 
       // Act & Assert - Should not throw any error, specifically NotFoundError
@@ -91,11 +89,13 @@ describe('ThreadRepositoryPostgres', () => {
 
   describe('getThreadById', () => {
     it('should return thread if exists', async () => {
-      // Arrange - Add user and thread
+      // Arrange - Add user and thread using helper
       await UsersTableTestHelper.addUser({ id: 'user-123' });
-      await pool.query({
-        text: 'INSERT INTO threads (id, title, body, owner, date) VALUES($1, $2, $3, $4, $5)',
-        values: ['thread-123', 'Judul Thread', 'Thread Body', 'user-123', new Date().toISOString()],
+      await ThreadsTableTestHelper.addThread({
+        id: 'thread-123',
+        title: 'Judul Thread',
+        body: 'Thread Body',
+        owner: 'user-123'
       });
 
       // Act
