@@ -6,6 +6,7 @@ class ThreadRepository {
 	async verifyThreadExists(threadId) {
 		throw new Error('THREAD_REPOSITORY.NOT_FOUND');
 	}
+	
 	async getThreadById(threadId) {
         throw new Error('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }

@@ -8,5 +8,6 @@ describe('threadRepository interface', () => {
 	// Action & Assert
 	await expect(threadRepository.addThread({})).rejects.toThrowError('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
 	await expect(threadRepository.verifyThreadExists('')).rejects.toThrowError('THREAD_REPOSITORY.NOT_FOUND');
+	await expect(threadRepository.getThreadById('')).rejects.toThrowError('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
