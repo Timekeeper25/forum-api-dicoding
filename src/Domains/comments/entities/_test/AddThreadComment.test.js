@@ -22,6 +22,15 @@ describe('AddThreadComment entity', () => {
 		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
 	});
 
+	it('should throw error when content is not a string', () => {
+		const payload = {
+			content: 123,
+			threadId: 'thread-123',
+			owner: 'user-123'
+		};
+		expect(() => new AddThreadComment(payload)).toThrowError('NEW_COMMENT.PROPERTY_HAVE_WRONG_DATA_TYPE');
+	});
+
 	it('should create AddThreadComment object correctly when given valid payload', () => {
 		const payload = {
 			content: 'komentar',
