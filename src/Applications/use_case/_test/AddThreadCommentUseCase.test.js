@@ -1,6 +1,8 @@
 const AddThreadCommentUseCase = require('../AddThreadCommentUseCase');
 const AddThreadComment = require('../../../Domains/comments/entities/AddThreadComment');
 const AddedThreadComment = require('../../../Domains/comments/entities/AddedThreadComment');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 
 describe('AddThreadCommentUseCase', () => {
 	it('should orcestrate the add thread comment action correctly', async () => {
@@ -18,13 +20,12 @@ describe('AddThreadCommentUseCase', () => {
 			owner: useCasePayload.owner
 		});
 
-		const mockThreadRepository = {
-			verifyThreadExists: jest.fn().mockResolvedValue(),
-		}
+		const mockThreadRepository = new ThreadRepository();
+		mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
+		
 
-		const mockCommentRepository = {
-			addThreadComment: jest.fn().mockResolvedValue(expectedAddedThreadComment),
-		};
+		const mockCommentRepository = new CommentRepository();
+		mockCommentRepository.addThreadComment = jest.fn().mockResolvedValue(expectedAddedThreadComment);
 
 		const addThreadCommentUseCase = new AddThreadCommentUseCase({
 			threadRepository: mockThreadRepository,
